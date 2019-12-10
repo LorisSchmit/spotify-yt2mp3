@@ -21,13 +21,27 @@ def getJSON(access_token,what):
             pl_list.append([item['album']['id'], item['album']['name']])
     return pl_list
 
-
 def getToken():
+    try:
+        with open("token") as f:
+            access_token = f.readline()
+        f.close()
+        print("token from file")
+    except KeyError:
+        access_token = getNewToken()
+        f = open("token","w")
+        f.write(access_token)
+        f.close()
+        print("new token")
+    return access_token
+
+
+def getNewToken():
     AUTH_URL = "https://accounts.spotify.com/api/token"
     with open("spotify_tokens",mode="r") as file:
-        refresh_token = file.readline()
-        client_id = file.readline()
-        client_secret = file.readline()
+        refresh_token = file.readline().rstrip('\n')
+        client_id = file.readline().rstrip('\n')
+        client_secret = file.readline().rstrip('\n')
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json'
@@ -46,20 +60,14 @@ def getToken():
 
     return access_token
 
+def getPlaylists():
+    access_token = getToken()
+    pl_list = getJSON(access_token,'playlists')
+    return pl_list
+
 def getPlaylist(to_download):
-    try:
-        with open("token") as f:
-            access_token = f.readline()
-        f.close()
-        pl_list = getJSON(access_token,'playlists')
-        print("token from file")
-    except KeyError:
-        access_token = getToken()
-        f = open("token","w")
-        f.write(access_token)
-        f.close()
-        print("new token")
-        pl_list = getJSON(access_token,'playlists')
+    pl_list = getPlaylists()
+    access_token = getToken()
     songs = []
     for pl in pl_list:
         if pl[1] == to_download:
@@ -101,19 +109,8 @@ def getPlaylist(to_download):
     return songs
 
 def getAlbum(to_download):
-    try:
-        with open("token") as f:
-            access_token = f.readline()
-        f.close()
-        pl_list = getJSON(access_token, 'albums')
-        print("token from file")
-    except KeyError:
-        access_token = getToken()
-        f = open("token","w")
-        f.write(access_token)
-        f.close()
-        print("new token")
-        pl_list = getJSON(access_token, 'albums')
+    access_token = getToken()
+    pl_list = getJSON(access_token, 'albums')
     songs = []
     for pl in pl_list:
         if pl[1] == to_download:
