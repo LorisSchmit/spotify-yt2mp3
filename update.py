@@ -23,7 +23,7 @@ def update(playlist):
         found = False
         for file in files:
             song_name = file[:-4]
-            if song_name == song.title:
+            if song_name.decode('utf-8') == song.title.decode('utf-8'):
                 found = True
         if not found:
             new_songs.append(song)
